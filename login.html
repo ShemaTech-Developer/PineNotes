@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#15803d"><title>PineNotes — Login</title>
+<link rel="stylesheet" href="style.css"><link rel="manifest" href="manifest.json">
+</head><body>
+<section class="page auth-page"><div class="auth-card">
+<div class="logo big-logo"><span class="logo-icon">🌲</span> PineNotes</div>
+<h1 class="auth-title">Welcome back 👋</h1><p class="auth-sub">Good to see you again. Log in to continue.</p>
+<form id="loginForm" class="auth-form">
+<label>Username<input name="username" required placeholder="e.g. lucky123"></label>
+<label>Password<input name="password" type="password" required placeholder="Your password"></label>
+<p class="form-error" id="loginError" hidden></p>
+<button class="btn-primary full" type="submit">Login →</button>
+</form>
+<p class="auth-switch">New to PineNotes? <a href="register.html">Create an account →</a></p>
+</div></section>
+<script>
+const K='pinenotes_users_v1',S='pinenotes_session_v1';
+function load(){try{return JSON.parse(localStorage.getItem(K)||'[]')}catch(e){return[]}}
+async function hash(pw){if(crypto&&crypto.subtle){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(pw+'pinenotes-salt'));return[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')}let h=0;for(let i=0;i<pw.length;i++){h=(h<<5)-h+pw.charCodeAt(i);h|=0}return 'weak'+Math.abs(h)}
+document.getElementById('loginForm').addEventListener('submit',async e=>{e.preventDefault();const f=new FormData(e.target);const u=load().find(x=>x.username===String(f.get('username')).trim().toLowerCase());const err=document.getElementById('loginError');
+if(!u||u.passHash!==await hash(String(f.get('password')))){err.textContent='That username or password doesn’t match. Try again.';err.hidden=false;return}
+localStorage.setItem(S,u.username);location.href='index.html';});
+</script>
+</body></html>

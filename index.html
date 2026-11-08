@@ -1,0 +1,340 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#15803d">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: https: blob:; style-src 'self'; script-src 'self' https://cdn.jsdelivr.net; frame-src data: blob:; connect-src 'self' https://generativelanguage.googleapis.com https://api.groq.com https://api.openai.com https://*.supabase.co; base-uri 'self'; form-action 'self'; object-src 'none'">
+<title>PineNotes — Student Notes Library</title>
+<meta name="description" content="PineNotes is a free student notes and documents library. Search and download notes uploaded by students.">
+<link rel="manifest" href="manifest.json"><link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌲</text></svg>">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<a class="skip-link" href="#notes">Skip to notes</a>
+<header class="nav" id="mainNav">
+  <a class="logo" href="#top"><span class="logo-icon">🌲</span> PineNotes</a>
+  <nav id="mainLinks">
+    <a href="#top">Home</a><a href="#notes">Notes</a><a href="#dashboard">Dashboard</a><a href="#upload">Publish</a><a href="#favorites">Favorites</a><a href="#about">About Us</a><a href="#help">Help</a><a href="#contact">Contact</a>
+  </nav>
+  <div class="user-area" id="userArea" hidden>
+    <button class="avatar" id="avatarBtn" title="View account"><span id="avatarLetter">?</span></button>
+    <span class="username-label" id="navUsername"></span>
+    <button class="btn-ghost small" id="logoutBtn">Logout</button>
+  </div>
+  <button class="menu-btn" id="menuBtn" aria-label="Open menu">☰</button>
+</header>
+
+<!-- LOGIN PAGE — separate page -->
+<section id="loginPage" class="page auth-page">
+  <div class="auth-card reveal visible">
+    <div class="logo big-logo"><span class="logo-icon">🌲</span> PineNotes</div>
+    <h1 class="auth-title">Welcome back 👋</h1>
+    <p class="auth-sub">Good to see you again. Log in to continue to your notes — no email, just your username and password.</p>
+    <form id="loginForm" class="auth-form">
+      <label>Username<input name="username" required autocomplete="username" placeholder="e.g. lucky123" maxlength="24"></label>
+      <label>Password<input name="password" type="password" required autocomplete="current-password" placeholder="Your password"></label>
+      <p class="form-error" id="loginError" hidden></p>
+      <button class="btn-primary full" type="submit">Login →</button>
+    </form>
+    <p class="auth-switch">New to PineNotes? <button class="link-btn" id="goRegisterBtn">Create an account →</button></p>
+    <div class="auth-features"><span>✅ Free</span><span>🔒 Private</span><span>📚 9 Departments</span><span>📱 Works offline</span></div>
+  </div>
+</section>
+
+<!-- CREATE ACCOUNT PAGE — separate page -->
+<section id="registerPage" class="page auth-page" hidden>
+  <div class="auth-card reveal visible">
+    <div class="logo big-logo"><span class="logo-icon">🌲</span> PineNotes</div>
+    <h1 class="auth-title">Create your account ✨</h1>
+    <p class="auth-sub">Join PineNotes in less than a minute. Pick a username you like — that's your identity here, no email needed.</p>
+    <form id="createForm" class="auth-form">
+      <label>Display name<input name="displayName" required placeholder="e.g. Lucky Shema" maxlength="40"></label>
+      <label>Choose a username<input name="username" required autocomplete="username" placeholder="3–24 letters, numbers, _" maxlength="24"></label>
+      <label>Create password<input name="password" type="password" required autocomplete="new-password" placeholder="At least 6 characters"></label>
+      <label>Confirm password<input name="confirm" type="password" required autocomplete="new-password" placeholder="Repeat password"></label>
+      <p class="form-error" id="createError" hidden></p>
+      <button class="btn-primary full" type="submit">Create Account →</button>
+      <p class="hint center">By creating an account you agree to share notes honestly and respect others. Your account is saved securely in this browser for the Vercel static version — for shared school accounts, connect a free backend later (see README).</p>
+    </form>
+    <p class="auth-switch">Already have an account? <button class="link-btn" id="goLoginBtn">← Login</button></p>
+    <div class="auth-features"><span>✅ Free</span><span>🔒 Hashed password</span><span>🎓 Teacher / Student</span><span>📱 Works offline</span></div>
+  </div>
+</section>
+
+<!-- ROLE PAGE -->
+<section id="rolePage" class="page" hidden>
+  <div class="page-wrap">
+    <p class="eyebrow">Welcome, <span id="roleUsername"></span> 👋</p>
+    <h1 class="page-title">Are you a <span>Teacher</span> or <span>Student</span>?</h1>
+    <p class="muted center">Choose one. Teachers and students get different services.</p>
+    <div class="role-grid">
+      <button class="role-card" id="chooseStudent"><span class="role-icon">🎓</span><h3>Student</h3><p>Browse, search, preview, download, favorite and publish notes. This is the main PineNotes library.</p><b>Continue as Student →</b></button>
+      <button class="role-card teacher" id="chooseTeacher"><span class="role-icon">👩‍🏫</span><h3>Teacher</h3><p>Extra services: publish as teacher, manage notes, view statistics, export reports, moderate content.</p><b>Continue as Teacher →</b></button>
+    </div>
+    <p class="hint center">Not sure? Students should choose Student. Teacher access asks for teacher registration data.</p>
+  </div>
+</section>
+
+<!-- TEACHER REGISTRATION PAGE -->
+<section id="teacherRegisterPage" class="page" hidden>
+  <div class="page-wrap narrow">
+    <p class="eyebrow">Teacher Registration</p>
+    <h1 class="page-title">Teacher Registration 👩‍🏫</h1>
+    <div class="warn-box">⚠️ <b>Students:</b> please go back and choose <b>Student</b>. This page asks for real teacher data that will be checked by the school in the full version. If you are a student, you will not be able to complete this — that is by design.</div>
+    <form id="teacherForm" class="upload-card teacher-form">
+      <label>Full name<input name="fullName" required placeholder="e.g. Uwase Angel"></label>
+      <label>Teacher ID / Registration No.<input name="teacherId" required placeholder="e.g. TCH-2026-001" minlength="6"></label>
+      <label>School / Institution<input name="school" required placeholder="Your school name"></label>
+      <label>Department<select name="department" required><option>Computer Systems and Architecture</option><option>Software Development</option><option>Networking and Internet Technologies</option><option>Electronics and Telecommunication</option><option>Professional Accounting</option><option>Multimedia Production</option><option>Tourism and Hospitality</option><option>Food and Beverage Operations</option><option>Building and Construction Services</option><option>Other</option></select></label>
+      <label>Subjects you teach<input name="subjects" required placeholder="e.g. Networking, Programming"></label>
+      <label>Phone (optional)<input name="phone" placeholder="+250 …"></label>
+      <label>Years of experience<input name="experience" type="number" min="0" max="60" placeholder="e.g. 5"></label>
+      <label class="check-label"><input type="checkbox" id="teacherConfirm" required> I confirm I am a teacher at this school and the data above is true. I understand the school may verify it.</label>
+      <div class="form-actions"><button class="btn-primary" type="submit">Register as Teacher →</button><button class="btn-ghost" type="button" id="backToStudentBtn">← I am a Student</button></div>
+    </form>
+  </div>
+</section>
+
+<main id="appPage" hidden>
+  <section class="hero reveal">
+    <div class="hero-badge">🌱 For Students, By Students</div>
+    <h1>Find notes. <span>Download fast.</span><br>Learn together.</h1>
+    <p>PineNotes is a free library where students share notes and documents. Search by subject, title or author — then download in one click.</p>
+    <form class="search-box" id="searchForm" role="search">
+      <span aria-hidden="true">🔍</span>
+      <input id="searchInput" type="search" placeholder="Search notes, subjects, authors…" aria-label="Search notes">
+      <button type="submit">Search</button>
+    </form>
+    <div class="quick-tags">
+      <button data-q="Computer Systems and Architecture">Computer Systems and Architecture</button><button data-q="Software Development">Software Development</button><button data-q="Networking and Internet Technologies">Networking and Internet Technologies</button><button data-q="Electronics and Telecommunication">Electronics and Telecommunication</button>
+    </div>
+    <div class="hero-actions">
+      <a class="btn-primary" href="#notes">Browse notes →</a>
+      <a class="btn-ghost" href="#upload">Publish a note</a>
+      <button class="btn-ghost" id="shareLibraryBtn">📤 Share PineNotes</button>
+    </div>
+    <div class="hero-art" aria-hidden="true"><span>📚</span><span>🌲</span><span>✏️</span><span>🎓</span></div>
+  </section>
+
+  <section id="dashboard" class="section reveal">
+    <div class="section-head"><div><p class="eyebrow">Dashboard</p><h2>Library at a glance</h2></div><p>Live numbers from the notes currently in PineNotes.</p></div>
+    <div class="stats">
+      <article class="stat"><span>📄</span><strong id="statNotes">0</strong><p>Total notes</p></article>
+      <article class="stat"><span>📚</span><strong id="statSubjects">0</strong><p>Subjects</p></article>
+      <article class="stat"><span>⬇️</span><strong id="statDownloads">0</strong><p>Total downloads</p></article>
+      <article class="stat"><span>👥</span><strong id="statAuthors">0</strong><p>Contributors</p></article>
+      <article class="stat"><span>⭐</span><strong id="statFavs">0</strong><p>Your favorites</p></article>
+    </div>
+    <div class="dash-grid">
+      <article class="panel"><h3>Browse by subject</h3><div id="subjectList" class="chips"></div></article>
+      <article class="panel"><h3>Notes per department</h3><div id="deptChart" class="chart"></div></article>
+      <article class="panel"><h3>Top downloaded</h3><ol id="topList" class="top-list"></ol></article>
+    </div>
+    <div class="dash-grid">
+      <article class="panel"><h3>Latest additions</h3><ul id="latestList" class="latest-list"></ul></article>
+      <article class="panel"><h3>Most viewed / previewed</h3><ul id="viewedList" class="latest-list"></ul></article>
+      <article class="panel"><h3>Top contributors</h3><ul id="contributorList" class="latest-list"></ul></article>
+    </div>
+  </section>
+
+  <section id="notes" class="section reveal">
+    <div class="section-head"><div><p class="eyebrow">Library</p><h2>Notes &amp; documents</h2></div><p id="resultText" class="result-text"></p></div>
+    <div id="sharedStatus" class="shared-status">🌐 Loading shared library…</div>
+    <div class="filters" id="filters" role="tablist" aria-label="Filter by subject"></div>
+    <div class="toolbar">
+      <label>Sort
+        <select id="sortSelect">
+          <option value="newest">Newest first</option><option value="popular">Most downloaded</option><option value="az">Title A–Z</option><option value="oldest">Oldest first</option>
+        </select>
+      </label>
+      <label>File type
+        <select id="typeSelect">
+          <option value="all">All types</option><option value="pdf">PDF</option><option value="txt">Text / Markdown</option><option value="doc">Word</option><option value="ppt">PowerPoint</option><option value="other">Other</option>
+        </select>
+      </label>
+      <label>View
+        <select id="viewSelect"><option value="grid">Grid</option><option value="list">List</option></select>
+      </label>
+      <button id="clearFiltersBtn" class="btn-ghost small">Clear filters</button>
+      <button id="exportBtn" class="btn-ghost small" title="Download your favorites + uploads as JSON backup">⬇ Export my data</button>
+      <button id="clearDataBtn" class="btn-ghost small" title="Remove your uploads, favorites and views from this browser">🗑 Clear my data</button>
+      <span id="activeFilterText" class="meta"></span>
+    </div>
+    <div id="notesGrid" class="grid"></div>
+    <div id="emptyState" class="empty" hidden><span>🍃</span><h3>No notes found</h3><p>Try a different search word, or upload the first note for this subject.</p><a class="btn-primary" href="#upload">Publish a note →</a></div>
+  </section>
+
+  <section id="favorites" class="section reveal">
+    <div class="section-head"><div><p class="eyebrow">Your Space</p><h2>⭐ Favorites</h2></div><p>Star notes to save them here. Stored only in your browser. <b>Press / to search, Esc to close.</b></p></div>
+    <div class="toolbar"><button id="exportFavsBtn" class="btn-ghost small">⬇ Export favorites</button><button id="printFavsBtn" class="btn-ghost small">🖨 Print favorites list</button><span class="meta" id="recentText"></span></div>
+    <div id="favGrid" class="grid"></div>
+    <div id="favEmpty" class="empty"><span>⭐</span><h3>No favorites yet</h3><p>Tap the star on any note to save it here for quick access.</p></div>
+  </section>
+
+  <section id="upload" class="section upload reveal">
+    <div class="section-head"><div><p class="eyebrow">Contribute · Publish Area</p><h2>Publish a note</h2></div><p id="publishRoleText">Add a document for other students. It appears instantly in your browser.</p></div>
+    <div class="publish-depts">
+      <h3>Departments on PineNotes</h3>
+      <div class="chips">
+        <span class="chip static">Computer Systems and Architecture</span><span class="chip static">Software Development</span><span class="chip static">Networking and Internet Technologies</span><span class="chip static">Electronics and Telecommunication</span><span class="chip static">Professional Accounting</span><span class="chip static">Multimedia Production</span><span class="chip static">Tourism and Hospitality</span><span class="chip static">Food and Beverage Operations</span><span class="chip static">Building and Construction Services</span>
+      </div>
+    </div>
+    <form id="uploadForm" class="upload-card">
+      <label>Title<input name="title" required placeholder="e.g. Networking — OSI Model"></label>
+      <label>Subject / Department<select name="subject" required><option>Computer Systems and Architecture</option><option>Software Development</option><option>Networking and Internet Technologies</option><option>Electronics and Telecommunication</option><option>Professional Accounting</option><option>Multimedia Production</option><option>Tourism and Hospitality</option><option>Food and Beverage Operations</option><option>Building and Construction Services</option><option>Other</option></select></label>
+      <label>Your name<input name="author" required placeholder="Your name"></label>
+      <label>Class / Year (optional)<input name="level" placeholder="e.g. Year 2, Group A"></label>
+      <label>Tags (optional, comma separated)<input name="tags" placeholder="e.g. exam, revision, week-1"></label>
+      <label>Description<textarea name="description" rows="3" maxlength="600" placeholder="What does this note cover?"></textarea></label>
+      <label class="file-label" id="dropZone">📁 Drop your file here or click to choose<input name="file" id="fileInput" type="file" required accept=".txt,.md,.pdf,.doc,.docx,.ppt,.pptx,.html,.csv,.json"><small id="fileInfo">PDF, DOCX, PPTX, TXT, MD, HTML, CSV, JSON · Max 50 MB · Executables (.exe/.bat/.sh/.js) are blocked for safety</small></label>
+      <label class="check-label"><input type="checkbox" id="rightsCheck" required> I confirm I have the right to share this file, it contains no personal/private data, and it is safe for students.</label>
+      <p class="hint">Upload up to 50 MB. In Shared mode (Supabase connected) everyone can see &amp; download your note. In per-browser mode it stays on this device. Only upload files you have the right to share.</p>
+      <div class="form-actions"><button class="btn-primary" type="submit">Publish note →</button><button class="btn-ghost" type="reset">Clear</button></div>
+    </form>
+  </section>
+
+  <section id="about" class="section reveal">
+    <div class="about-card">
+      <div><p class="eyebrow">About Us</p><h2>Built for learners 🌲</h2><p>PineNotes started as a student project to make revision easier. No paywalls, no dark clutter — just a clean, fast place to find and share knowledge.</p><p>Every student can contribute notes, summaries, past-paper solutions and revision guides. Good notes from one class help the whole school.</p><p><b>Our mission:</b> one trusted, free place for every department — from Computer Systems to Building and Construction Services.</p></div>
+      <ul class="values"><li>✅ <span><b>Free forever</b><small>Search and download without an account</small></span></li><li>⚡ <span><b>Fast &amp; light</b><small>Pure HTML, CSS &amp; JavaScript — no heavy framework</small></span></li><li>🎓 <span><b>Student-made</b><small>Upload what helped you, help others</small></span></li><li>🌍 <span><b>Works anywhere</b><small>Host the folder on any DNS / static host</small></span></li><li>🔒 <span><b>Private by design</b><small>No tracking, no payments, favorites stay on your device</small></span></li><li>📱 <span><b>Mobile friendly</b><small>Works on phones, tablets and laptops</small></span></li></ul>
+    </div>
+  </section>
+
+  <section id="help" class="section reveal">
+    <div class="section-head"><div><p class="eyebrow">Help &amp; FAQ</p><h2>How PineNotes works</h2></div><p>Guides for students and teachers.</p></div>
+    <div class="help-grid">
+      <details open><summary>How do I download a note?</summary><p>Search or filter by department, tap <b>Preview</b> to check it, then <b>Download ↓</b>. The download is real — it saves the file to your device.</p></details>
+      <details><summary>How do I publish a note?</summary><p>Go to <b>Publish</b>, fill title + department, choose your file, and tap Publish. It is saved in your browser. For school-wide sharing, the school can approve a backend phase later.</p></details>
+      <details><summary>What file types can I upload?</summary><p>PDF, DOCX, PPTX, TXT, MD, HTML, CSV, JSON. Keep files up to 50 MB for smooth browsing.</p></details>
+      <details><summary>How do favorites work?</summary><p>Tap ⭐ on any note. Favorite notes appear in the Favorites page and are stored only on your device.</p></details>
+      <details><summary>Can teachers moderate?</summary><p>In this static version, moderation is manual. The roadmap adds teacher approval — see README.md. Never upload harmful, private, or copyrighted material you don't own.</p></details>
+      <details><summary>Terms &amp; Privacy</summary><p>PineNotes is free for learning. No payments, no ads, no account needed. Favorites and uploads stay in your browser (localStorage). Contact the team to report a note.</p></details>
+      <details><summary>🔒 Security — how PineNotes protects you</summary><p>• All titles/descriptions are escaped to prevent injection (XSS). • CSP header blocks external scripts. • Executable files (.exe/.bat/.sh/.js etc.) are blocked on upload. • Downloads are saved as files, never auto-run. • No tracking, no accounts. • Use <b>Clear my data</b> anytime to wipe your browser data. On a shared computer, clear data when you finish.</p></details>
+      <details><summary>⌨️ Keyboard shortcuts</summary><p><b>/</b> focus search · <b>Esc</b> close popups · Tab to navigate. Works with screen readers (skip link, labels).</p></details>
+      <details><summary>📶 Offline / Install as app</summary><p>PineNotes is a PWA — on Chrome/Edge you can “Install app”. Pages you visited work offline. No server or payment needed.</p></details>
+    </div>
+  </section>
+
+  <section id="contact" class="section reveal">
+    <div class="contact-card">
+      <p class="eyebrow">Contact</p><h2>Talk to the PineNotes team</h2><p>Questions, corrections, or want to add your class notes? Reach us:</p>
+      <div class="contact-row"><a class="contact-item" href="mailto:shemalucky83@gmail.com">✉️ shemalucky83@gmail.com</a><button data-copy="shemalucky83@gmail.com">Copy</button></div>
+      <div class="contact-row"><a class="contact-item" href="tel:+250795605242">📞 +250 795 605 242</a><button data-copy="+250795605242">Copy</button></div>
+      <p class="hint">For school adoption: we propose a 1-term pilot in 1–2 departments with teacher review. No cost, static hosting.</p>
+    </div>
+  </section>
+</main>
+
+<!-- TEACHER PAGE -->
+<section id="teacherPage" class="page" hidden>
+  <div class="page-wrap wide">
+    <div class="teacher-hero"><div><p class="eyebrow">Teacher Dashboard</p><h1>Welcome, Teacher <span id="teacherName"></span> 👩‍🏫</h1><p id="teacherMeta" class="muted"></p></div><div class="avatar big"><span id="teacherAvatarLetter">T</span></div></div>
+    <div class="stats" id="teacherStats">
+      <article class="stat"><span>📄</span><strong id="tNotes">0</strong><p>All notes</p></article>
+      <article class="stat"><span>✏️</span><strong id="tMine">0</strong><p>My notes</p></article>
+      <article class="stat"><span>⬇️</span><strong id="tDownloads">0</strong><p>Total downloads</p></article>
+      <article class="stat"><span>👥</span><strong id="tStudents">0</strong><p>Student accounts</p></article>
+    </div>
+    <div class="teacher-services">
+      <button class="service-card" id="teacherGoPublish">📤 <b>Publish a Note</b><small>Upload notes for your class</small></button>
+      <button class="service-card" id="teacherGoLibrary">📚 <b>Browse Library</b><small>Search &amp; download all notes</small></button>
+      <button class="service-card" id="teacherGoManage">🛠 <b>Manage Notes</b><small>View &amp; remove uploaded notes (moderation)</small></button>
+      <button class="service-card" id="teacherExport">📊 <b>Export Report</b><small>Download library report (JSON)</small></button>
+      <button class="service-card" id="teacherViewAccount">👤 <b>My Account</b><small>View teacher profile &amp; data</small></button>
+      <button class="service-card" id="teacherSwitchStudent">🎓 <b>Student View</b><small>See what students see</small></button>
+    </div>
+    <article class="panel"><h3>My uploaded notes</h3><div id="teacherMyNotes"></div></article>
+    <article class="panel"><h3>All uploaded notes (moderation)</h3><p class="meta">Teachers can remove unsafe or wrong uploads. Uploads are stored in this browser in the Vercel static version.</p><div id="teacherAllNotes"></div></article>
+  </div>
+</section>
+
+<!-- ACCOUNT PAGE -->
+<section id="accountPage" class="page" hidden>
+  <div class="page-wrap narrow">
+    <p class="eyebrow">My Account</p><h1 class="page-title">Your Account 👤</h1>
+    <div class="account-card">
+      <div class="avatar xl"><span id="accountLetter">?</span></div>
+      <h2 id="accountName"></h2><p id="accountRole" class="muted"></p><p id="accountSince" class="meta"></p>
+    </div>
+    <div class="stats small-stats">
+      <article class="stat"><span>✏️</span><strong id="accUploads">0</strong><p>My uploads</p></article>
+      <article class="stat"><span>⭐</span><strong id="accFavs">0</strong><p>Favorites</p></article>
+      <article class="stat"><span>⬇️</span><strong id="accDownloads">0</strong><p>My downloads</p></article>
+    </div>
+    <article class="panel" id="accountTeacherBox" hidden><h3>Teacher Registration Data</h3><div id="accountTeacherData"></div></article>
+    <div class="account-actions">
+      <button class="btn-primary" id="accountGoLibrary">Go to Library →</button>
+      <button class="btn-ghost" id="changePassBtn">🔑 Change Password</button>
+      <button class="btn-ghost" id="accountLogoutBtn">Logout</button>
+      <button class="btn-ghost danger" id="deleteAccountBtn">Delete Account</button>
+    </div>
+    <form id="changePassForm" class="upload-card" hidden>
+      <label>New password<input name="newPass" type="password" required placeholder="At least 6 characters"></label>
+      <label>Confirm new password<input name="confirmPass" type="password" required placeholder="Repeat"></label>
+      <p class="form-error" id="passError" hidden></p>
+      <div class="form-actions"><button class="btn-primary" type="submit">Save Password</button><button class="btn-ghost" type="button" id="cancelPassBtn">Cancel</button></div>
+    </form>
+  </div>
+</section>
+
+<footer><span>🌲 <b>PineNotes</b> — Student Notes Library · v2.0 Secure Static</span><span><a href="#help">Help</a> · <a href="#favorites">Favorites</a> · <a href="#upload">Publish</a></span><span>Contact: <a href="mailto:shemalucky83@gmail.com">shemalucky83@gmail.com</a> · <a href="tel:+250795605242">+250 795 605 242</a></span></footer>
+
+<div id="previewModal" class="modal" hidden role="dialog" aria-modal="true" aria-labelledby="previewTitle">
+  <div class="modal-card">
+    <div class="modal-head"><h3 id="previewTitle">Preview</h3><button class="close" data-close aria-label="Close">✕</button></div>
+    <div id="previewBody" class="preview-body"></div>
+    <div class="modal-actions"><button id="previewAI" class="btn-primary">🤖 Summarize with AI</button><button id="previewDownload" class="download">Download ↓</button><button id="previewShare" class="btn-ghost">📤 Share</button><button class="btn-ghost" data-close>Close</button></div>
+  </div>
+</div>
+
+<div id="shareModal" class="modal" hidden role="dialog" aria-modal="true">
+  <div class="modal-card small">
+    <div class="modal-head"><h3>📤 Share</h3><button class="close" data-close aria-label="Close">✕</button></div>
+    <p id="shareText" class="meta"></p>
+    <img id="qrImg" alt="QR code" width="180" height="180" class="qr">
+    <div class="contact-row"><input id="shareUrl" readonly class="share-input"><button id="copyShareBtn">Copy link</button></div>
+    <div class="modal-actions"><button id="nativeShareBtn" class="btn-primary">Share via device…</button><button class="btn-ghost" data-close>Close</button></div>
+  </div>
+</div>
+
+<button id="aiBtn" class="ai-fab" aria-label="Ask Pine AI"><span class="ai-fab-icon"><svg viewBox="0 0 64 64" width="34" height="34" aria-hidden="true"><path d="M32 6 L26 18 L32 14 L38 18 Z" fill="#22c55e"/><path d="M32 8 L20 16 L28 20 Z" fill="#16a34a"/><path d="M32 8 L44 16 L36 20 Z" fill="#16a34a"/><ellipse cx="32" cy="38" rx="18" ry="20" fill="#facc15" stroke="#eab308" stroke-width="2"/><path d="M20 28 L44 48 M44 28 L20 48 M32 20 L32 56" stroke="#eab308" stroke-width="1.6" opacity=".7"/><circle cx="26" cy="36" r="5.5" fill="#fff"/><circle cx="38" cy="36" r="5.5" fill="#fff"/><circle cx="27" cy="37" r="2.8" fill="#17251b"/><circle cx="39" cy="37" r="2.8" fill="#17251b"/><circle cx="28" cy="36" r="1" fill="#fff"/><circle cx="40" cy="36" r="1" fill="#fff"/><path d="M27 45 Q32 49 37 45" stroke="#17251b" stroke-width="2" fill="none" stroke-linecap="round"/></svg></span><span class="ai-fab-label">Ask Pine AI</span></button>
+
+<div id="aiPanel" class="ai-panel" hidden role="dialog" aria-label="Ask Pine AI">
+  <div class="ai-head"><div><b><svg viewBox="0 0 64 64" width="26" height="26" style="vertical-align:middle" aria-hidden="true"><path d="M32 6 L26 18 L32 14 L38 18 Z" fill="#22c55e"/><ellipse cx="32" cy="38" rx="18" ry="20" fill="#facc15"/><circle cx="26" cy="36" r="5.5" fill="#fff"/><circle cx="38" cy="36" r="5.5" fill="#fff"/><circle cx="27" cy="37" r="2.8" fill="#17251b"/><circle cx="39" cy="37" r="2.8" fill="#17251b"/><path d="M27 45 Q32 49 37 45" stroke="#17251b" stroke-width="2" fill="none" stroke-linecap="round"/></svg> Ask Pine AI</b><small id="aiSub">Smart helper · Offline mode</small></div><div style="display:flex;gap:6px"><button class="mini" id="aiSettingsBtn" title="Real AI settings">⚙️</button><button class="close" id="aiClose" aria-label="Close AI">✕</button></div></div>
+  <div id="aiSettings" class="ai-settings" hidden>
+    <b>Connect Real AI (optional, free)</b>
+    <p class="meta">Offline Pine AI works now with no key. To use a real cloud AI, paste your free API key below — it stays in this browser only. Get a free key from Google AI Studio (Gemini), Groq, or OpenAI. For a school, a teacher should manage the key.</p>
+    <label>Provider
+      <select id="aiProvider"><option value="gemini">Google Gemini (free)</option><option value="groq">Groq (free)</option><option value="openai">OpenAI</option></select>
+    </label>
+    <label>API Key<input id="aiApiKey" type="password" placeholder="Paste your key here" autocomplete="off"></label>
+    <div style="display:flex;gap:8px"><button class="btn-primary small" id="aiSaveKey">Save &amp; Connect</button><button class="btn-ghost small" id="aiClearKey">Use Offline</button></div>
+    <p class="meta" id="aiKeyStatus">Status: Offline Pine AI</p>
+  </div>
+  <div class="ai-quick">
+    <button data-ai="summarize">📝 Summarize</button>
+    <button data-ai="explain">💡 Explain</button>
+    <button data-ai="quiz">🧠 Quiz me</button>
+    <button data-ai="math">🔢 Solve maths</button>
+    <button data-ai="plan">🗓️ Study plan</button>
+    <button data-ai="help">❓ Help</button>
+  </div>
+  <label class="ai-select-label">Note for summary / quiz
+    <select id="aiNoteSelect"></select>
+  </label>
+  <div id="aiMessages" class="ai-messages" aria-live="polite"></div>
+  <form id="aiForm" class="ai-form">
+    <input id="aiInput" placeholder="Ask anything… e.g. what is OSI? solve x²-5x+6=0" autocomplete="off">
+    <button type="submit" aria-label="Send">➤</button>
+  </form>
+  <p class="ai-note" id="aiNoteText">Offline mode: answers from PineNotes + built-in knowledge. Add a free API key in ⚙️ for a real cloud AI.</p>
+</div>
+
+<div id="toast" class="toast" role="status"></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="supabase-config.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

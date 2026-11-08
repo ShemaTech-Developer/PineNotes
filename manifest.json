@@ -1,0 +1,12 @@
+{
+  "name": "PineNotes — Student Notes Library",
+  "short_name": "PineNotes",
+  "description": "Free student notes library. Search and download notes by department.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#15803d",
+  "icons": [
+    { "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌲</text></svg>", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}

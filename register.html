@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#15803d"><title>PineNotes — Create Account</title>
+<link rel="stylesheet" href="style.css"><link rel="manifest" href="manifest.json">
+</head><body>
+<section class="page auth-page"><div class="auth-card">
+<div class="logo big-logo"><span class="logo-icon">🌲</span> PineNotes</div>
+<h1 class="auth-title">Create your account ✨</h1><p class="auth-sub">Join in less than a minute. No email — just a username you like.</p>
+<form id="createForm" class="auth-form">
+<label>Display name<input name="displayName" required placeholder="e.g. Lucky Shema"></label>
+<label>Username<input name="username" required placeholder="3–24 letters, numbers, _"></label>
+<label>Password<input name="password" type="password" required placeholder="At least 6 characters"></label>
+<label>Confirm password<input name="confirm" type="password" required placeholder="Repeat password"></label>
+<p class="form-error" id="createError" hidden></p>
+<button class="btn-primary full" type="submit">Create Account →</button>
+</form>
+<p class="auth-switch">Already registered? <a href="login.html">← Login</a></p>
+</div></section>
+<script>
+const K='pinenotes_users_v1',S='pinenotes_session_v1';
+function load(){try{return JSON.parse(localStorage.getItem(K)||'[]')}catch(e){return[]}}
+function save(u){localStorage.setItem(K,JSON.stringify(u))}
+async function hash(pw){if(crypto&&crypto.subtle){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(pw+'pinenotes-salt'));return[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')}let h=0;for(let i=0;i<pw.length;i++){h=(h<<5)-h+pw.charCodeAt(i);h|=0}return 'weak'+Math.abs(h)}
+document.getElementById('createForm').addEventListener('submit',async e=>{e.preventDefault();const f=new FormData(e.target);const un=String(f.get('username')).trim().toLowerCase(),pw=String(f.get('password')),err=document.getElementById('createError');
+if(!/^[a-z0-9_]{3,24}$/.test(un)){err.textContent='Username must be 3–24 characters.';err.hidden=false;return}
+if(pw.length<6){err.textContent='Password must be at least 6 characters.';err.hidden=false;return}
+if(pw!==String(f.get('confirm'))){err.textContent='Passwords do not match.';err.hidden=false;return}
+const users=load();if(users.some(u=>u.username===un)){err.textContent='That username is taken.';err.hidden=false;return}
+users.push({username:un,displayName:String(f.get('displayName')).trim(),passHash:await hash(pw),created:new Date().toISOString().slice(0,10)});save(users);localStorage.setItem(S,un);location.href='index.html';});
+</script>
+</body></html>
